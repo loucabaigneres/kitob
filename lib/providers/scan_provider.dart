@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -7,6 +8,10 @@ import '../models/book.dart';
 import '../services/gemini_vision_service.dart';
 import '../services/google_books_service.dart';
 import 'books_provider.dart';
+
+final availableCamerasProvider = FutureProvider<List<CameraDescription>>((ref) async {
+  return await availableCameras();
+});
 
 final geminiVisionServiceProvider = Provider<GeminiVisionService>((ref) => GeminiVisionService());
 final googleBooksServiceProvider = Provider<GoogleBooksService>((ref) => GoogleBooksService());
@@ -59,27 +64,13 @@ class ScanNotifier extends Notifier<ScanState> {
 
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> processImage(ImageSource source) async {
+  Future<void> processCapturedFile(File file) async {
     try {
-      state = state.copyWith(step: ScanStep.capturing, errorMessage: null);
+      state = state.copyWith(step: ScanStep.capturing, capturedImageFile: file, errorMessage: null);
 
-      final pickedFile = await _picker.pickImage(
-        source: source,
-        maxWidth: 1600,
-        maxHeight: 1600,
-        imageQuality: 85,
-      );
-
-      if (pickedFile == null) {
-        state = state.copyWith(step: ScanStep.idle);
-        return;
-      }
-
-      final file = File(pickedFile.path);
       final bytes = await file.readAsBytes();
-      final mimeType = pickedFile.mimeType ?? 'image/jpeg';
+      final mimeType = file.path.endsWith('.png') ? 'image/png' : 'image/jpeg';
 
-      state = state.copyWith(step: ScanStep.analyzingImage, capturedImageFile: file);
       final geminiService = ref.read(geminiVisionServiceProvider);
       final extraction = await geminiService.extractBookDetails(bytes, mimeType);
 
@@ -122,6 +113,19 @@ class ScanNotifier extends Notifier<ScanState> {
         step: ScanStep.error,
         errorMessage: e.toString(),
       );
+    }
+  }
+
+  Future<void> pickFromGallery() async {
+    final pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1600,
+      maxHeight: 1600,
+      imageQuality: 85,
+    );
+
+    if (pickedFile != null) {
+      await processCapturedFile(File(pickedFile.path));
     }
   }
 

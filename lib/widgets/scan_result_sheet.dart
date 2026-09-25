@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../constants/app_colors.dart';
 import '../models/book.dart';
@@ -115,7 +116,7 @@ class _ScanResultSheetState extends ConsumerState<ScanResultSheet> {
             ),
             onPressed: () async {
               await ref.read(scanProvider.notifier).confirmSave(_selectedStatus);
-              if (context.mounted) Navigator.of(context).pop(true);
+              if (context.mounted) context.pop(true);
             },
             child: const Text('Ajouter à la bibliothèque'),
           ),
