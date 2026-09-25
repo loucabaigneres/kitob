@@ -36,6 +36,14 @@ class BookRepository {
     }
   }
 
+  Stream<Book?> watchBookById(Id id) async* {
+    final isar = await _isarService.db;
+    yield await isar.books.get(id);
+    await for (final _ in isar.books.watchLazy()) {
+      yield await isar.books.get(id);
+    }
+  }
+
   Future<void> saveBook(Book book) async {
     final isar = await _isarService.db;
     await isar.writeTxn(() async {
@@ -47,6 +55,19 @@ class BookRepository {
     final isar = await _isarService.db;
     await isar.writeTxn(() async {
       await isar.books.delete(id);
+    });
+  }
+
+  Future<void> updateBookStatus(Id id, ReadingStatus status) async {
+    final isar = await _isarService.db;
+    await isar.writeTxn(() async {
+      final book = await isar.books.get(id);
+      if (book != null) {
+        book.status = status;
+        book.updatedAt = DateTime.now();
+        book.isSynced = false;
+        await isar.books.put(book);
+      }
     });
   }
 

@@ -66,9 +66,7 @@ class HomeScreen extends ConsumerWidget {
                     final book = books[index];
                     return BookCard(
                       book: book,
-                      onTap: () {
-                        // TODO: Navigate to book details page
-                      }
+                      onTap: () => context.push('/book/${book.id}'),
                     );
                   }
                 );
