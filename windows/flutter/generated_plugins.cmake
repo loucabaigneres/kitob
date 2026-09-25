@@ -3,7 +3,10 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  isar_flutter_libs
+  firebase_app_check
+  firebase_auth
+  firebase_core
+  isar_community_flutter_libs
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

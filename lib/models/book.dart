@@ -1,11 +1,11 @@
-import 'package:isar/isar.dart';
+import 'package:isar_community/isar.dart';
 
 part 'book.g.dart';
 
 enum ReadingStatus {
   owned,
   toRead,
-  wishList,
+  wishlist,
 }
 
 @collection
