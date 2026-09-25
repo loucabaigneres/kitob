@@ -1,4 +1,4 @@
-import 'package:isar/isar.dart';
+import 'package:isar_community/isar.dart';
 
 import '../models/book.dart';
 import '../services/isar_service.dart';
@@ -53,5 +53,21 @@ class BookRepository {
   Future<Book?> getBookById(Id id) async {
     final isar = await _isarService.db;
     return await isar.books.get(id);
+  }
+
+  Future<Book?> findDuplicateBook({String? isbn, required String title, required String author}) async {
+    final isar = await _isarService.db;
+
+    if (isbn != null && isbn.isNotEmpty) {
+      final matchByIsbn = await isar.books.filter().isbnEqualTo(isbn).findFirst();
+      if (matchByIsbn != null) return matchByIsbn;
+    }
+
+    return await isar.books
+        .filter()
+        .titleEqualTo(title, caseSensitive: false)
+        .and()
+        .authorEqualTo(author, caseSensitive: false)
+        .findFirst();
   }
 }

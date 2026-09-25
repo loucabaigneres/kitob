@@ -16,7 +16,7 @@ class FilterBar extends ConsumerWidget {
       ('Tous', null),
       ('Possédés', ReadingStatus.owned),
       ('À lire', ReadingStatus.toRead),
-      ('Wishlit', ReadingStatus.wishList),
+      ('Wishlist', ReadingStatus.wishlist),
     ];
 
     return SingleChildScrollView(

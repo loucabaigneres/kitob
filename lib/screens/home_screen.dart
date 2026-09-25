@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../constants/app_colors.dart';
-import '../models/book.dart';
 import '../providers/books_provider.dart';
 import '../widgets/book_card.dart';
 import '../widgets/filter_bar.dart';
@@ -82,20 +82,9 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        tooltip: 'Ajouter un livre (test)',
-        onPressed: () async {
-          final repo = ref.read(bookRepositoryProvider);
-          final mockBook = Book()
-            ..title = 'Anna Karénine'
-            ..author = 'Léon Tolstoï'
-            ..status = ReadingStatus.owned
-            ..createdAt = DateTime.now()
-            ..updatedAt = DateTime.now()
-            ..synopsis = 'Ce livre raconte l’histoire d’Anna Karénine, une femme mariée qui tombe amoureuse d’un officier, le comte Vronski, et qui doit faire face aux conséquences de sa passion dans la société russe du XIXe siècle.';
-          
-          await repo.saveBook(mockBook);
-        },
-        child: const Icon(Icons.add),
+        tooltip: 'Numériser un livre',
+        onPressed: () => context.push('/scan'),
+        child: const Icon(Icons.camera_alt_outlined),
       ),
     );
   }

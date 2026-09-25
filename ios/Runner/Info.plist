@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Kitob utilise la caméra pour scanner les livres.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Kitob a besoin d'accéder aux photos pour analyser vos livres.</string>
 </dict>
 </plist>
