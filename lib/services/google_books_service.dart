@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 
+import '../constants/api_constants.dart';
+
 class GoogleBooksMetadata {
   final String title;
   final String author;
@@ -27,7 +29,7 @@ class GoogleBooksService {
       : _dio = dio ??
             Dio(
               BaseOptions(
-                baseUrl: 'https://www.googleapis.com/books/v1',
+                baseUrl: ApiConstants.googleBooksApiBaseUrl,
                 connectTimeout: const Duration(seconds: 10),
                 receiveTimeout: const Duration(seconds: 10),
               ),
@@ -39,13 +41,21 @@ class GoogleBooksService {
   }) async {
     try {
       final query = 'intitle:$title+inauthor:$author';
+
+      final queryParams = <String, dynamic>{
+        'q': query,
+        'maxResults': 1,
+        'printType': 'books',
+      };
+
+      final apiKey = ApiConstants.googleBooksApiKey;
+      if (apiKey.isNotEmpty) {
+        queryParams['key'] = apiKey;
+      }
+
       final response = await _dio.get(
         '/volumes',
-        queryParameters: {
-          'q': query,
-          'maxResults': 1,
-          'printType': 'books',
-        },
+        queryParameters: queryParams
       );
 
       final items = response.data['items'] as List<dynamic>?;
