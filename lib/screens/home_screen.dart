@@ -8,11 +8,31 @@ import '../widgets/book_card.dart';
 import '../widgets/filter_bar.dart';
 import '../widgets/sync_indicator_badge.dart';
 
-class HomeScreen extends ConsumerWidget {
+
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  late final FocusNode _searchFocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode = FocusNode(skipTraversal: true);
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final bookAsync = ref.watch(booksStreamProvider);
     final theme = Theme.of(context);
 
@@ -24,7 +44,10 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.account_circle_outlined),
             tooltip: 'Profil & Statistiques',
-            onPressed: () => context.push('/profile'),
+            onPressed: () {
+              _searchFocusNode.unfocus();
+              context.push('/profile');
+            }
           ),
           const SizedBox(width: 8),
         ],
@@ -33,6 +56,7 @@ class HomeScreen extends ConsumerWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
             child: SearchBar(
+              focusNode: _searchFocusNode,
               hintText: 'Rechercher par titre, auteur...',
               elevation: const WidgetStatePropertyAll(0),
               backgroundColor: const WidgetStatePropertyAll(AppColors.surfaceContainerLow),
@@ -43,6 +67,7 @@ class HomeScreen extends ConsumerWidget {
               onChanged: (val) {
                 ref.read(bookFilterProvider.notifier).setSearchQuery(val);
               },
+              onTapOutside: (_) => _searchFocusNode.unfocus(),
             ),
           ),
         ),
