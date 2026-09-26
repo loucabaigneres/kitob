@@ -34,8 +34,12 @@ class _AuthModalSheetState extends ConsumerState<AuthModalSheet> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    if (email.isEmpty || password.length < 6) {
-      setState(() => _errorMessage = 'Email valide et mot de passe de 6+ caractères requis.');
+    if (email.isEmpty || !email.contains('@')) {
+      setState(() => _errorMessage = 'Veuillez saisir une adresse email valide.');
+      return;
+    }
+    if (password.length < 6) {
+      setState(() => _errorMessage = 'Le mot de passe doit comporter au moins 6 caractères.');
       return;
     }
 
@@ -50,8 +54,34 @@ class _AuthModalSheetState extends ConsumerState<AuthModalSheet> {
       await ref.read(syncActionProvider.notifier).syncNow();
 
       if (mounted) context.pop();
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        setState(() => _errorMessage = _mapFirebaseAuthError(e.code));
+      }
     } catch (e) {
       if (mounted) setState(() => _errorMessage = e.toString());
+    }
+  }
+
+  String _mapFirebaseAuthError(String code) {
+    switch (code) {
+      case 'user-not-found':
+      case 'wrong-password':
+      case 'invalid-credential':
+        return 'Identifiants incorrects. Vérifiez votre email et mot de passe.';
+      case 'email-already-in-use':
+      case 'credential-already-in-use':
+        return 'Cet email est déjà associé à un autre compte Kitob.';
+      case 'invalid-email':
+        return 'Le format de l\'adresse email est invalide.';
+      case 'weak-password':
+        return 'Le mot de passe est trop faible.';
+      case 'network-request-failed':
+        return 'Impossible de contacter les serveurs. Vérifiez votre connexion.';
+      case 'too-many-requests':
+        return 'Trop de tentatives infructueuses. Réessayez plus tard.';
+      default:
+        return 'Erreur d\'authentification ($code).';
     }
   }
 

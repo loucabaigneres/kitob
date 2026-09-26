@@ -74,24 +74,31 @@ class ScanNotifier extends Notifier<ScanState> {
       final geminiService = ref.read(geminiVisionServiceProvider);
       final extraction = await geminiService.extractBookDetails(bytes, mimeType);
 
+      if (!extraction.isBook || extraction.title == null || extraction.title!.trim().isEmpty) {
+        throw Exception('Aucun livre reconnu. Assurez-vous que la couverture ou la tranche est bien cadrée et nette.');
+      }
+
+      final extractedTitle = extraction.title!.trim();
+      final extractedAuthor = extraction.author?.trim() ?? 'Auteur inconnu';
+
       state = state.copyWith(step: ScanStep.enrichingMetadata);
       final booksService = ref.read(googleBooksServiceProvider);
       final metadata = await booksService.searchBook(
-        title: extraction.title,
-        author: extraction.author,
+        title: extractedTitle,
+        author: extractedAuthor,
       );
 
       state = state.copyWith(step: ScanStep.checkingDuplicates);
       final repository = ref.read(bookRepositoryProvider);
       final duplicate = await repository.findDuplicateBook(
         isbn: metadata?.isbn,
-        title: metadata?.title ?? extraction.title,
-        author: metadata?.author ?? extraction.author,
+        title: metadata?.title ?? extractedTitle,
+        author: metadata?.author ?? extractedAuthor,
       );
 
       final candidate = Book()
-          ..title = metadata?.title ?? extraction.title
-          ..author = metadata?.author ?? extraction.author
+          ..title = metadata?.title ?? extractedTitle
+          ..author = metadata?.author ?? extractedAuthor
           ..volumeNumber = extraction.volumeNumber
           ..isbn = metadata?.isbn
           ..coverUrl = metadata?.coverUrl
@@ -109,9 +116,10 @@ class ScanNotifier extends Notifier<ScanState> {
         isDuplicate: duplicate != null,
       );
     } catch (e) {
+      final message = e.toString().replaceFirst('Exception: ', '');
       state = state.copyWith(
         step: ScanStep.error,
-        errorMessage: e.toString(),
+        errorMessage: message,
       );
     }
   }

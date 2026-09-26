@@ -35,10 +35,17 @@ class AuthNotifier extends AsyncNotifier<void> {
   Future<void> signIn(String email, String password) =>
       _executeAuth((s) => s.signInWithEmail(email, password));
 
-  Future<void> signOut() => _executeAuth((s) async {
-  final repo = ref.read(bookRepositoryProvider);
-  await s.signOut(onBeforeSignOut: repo.clearLocalDatabase);
-});
+  Future<void> signOut() async {
+    state = const AsyncLoading();
+    final result = await AsyncValue.guard(() async {
+      final authService = ref.read(authServiceProvider);
+      final repository = ref.read(bookRepositoryProvider);
+
+      await authService.signOut();
+      await repository.clearLocalDatabase();
+    });
+    if (ref.mounted) state = result;
+  }
 }
 
 final authActionProvider = AsyncNotifierProvider<AuthNotifier, void>(

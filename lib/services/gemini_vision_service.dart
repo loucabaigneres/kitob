@@ -4,20 +4,23 @@ import 'dart:typed_data';
 import 'package:firebase_ai/firebase_ai.dart';
 
 class GeminiBookExtraction {
-  final String title;
-  final String author;
+  final bool isBook;
+  final String? title;
+  final String? author;
   final int? volumeNumber;
 
   const GeminiBookExtraction({
-    required this.title,
-    required this.author,
+    required this.isBook,
+    this.title,
+    this.author,
     this.volumeNumber,
   });
 
   factory GeminiBookExtraction.fromJson(Map<String, dynamic> json) {
     return GeminiBookExtraction(
-      title: json['title'] as String? ?? 'Titre inconnu',
-      author: json['author'] as String? ?? 'Auteur inconnu',
+      isBook: json['isBook'] as bool? ?? false,
+      title: json['title'] as String?,
+      author: json['author'] as String?,
       volumeNumber: json['volumeNumber'] as int?,
     );
   }
@@ -33,26 +36,35 @@ class GeminiVisionService {
         responseMimeType: 'application/json',
         responseSchema: Schema.object(
           properties: {
-            'title': Schema.string(description: 'The exact title of the book'),
-            'author': Schema.string(description: 'The author or creator name'),
+            'isBook': Schema.boolean(
+              description: 'True if a physical book cover or spine is clearly identified in the image, false otherwise'
+            ),
+            'title': Schema.string(
+              description: 'The title of the book, or null if unreadable or not a book',
+              nullable: true,
+            ),
+            'author': Schema.string(
+              description: 'The author name, or null if unreadable or not a book',
+              nullable: true,
+            ),
             'volumeNumber': Schema.integer(
-              description: 'The volume or tome number if specified, otherwise null',
+              description: 'The volume number if visible, otherwise null',
               nullable: true,
             ),
           },
-          optionalProperties: ['volumeNumber'],
+          optionalProperties: ['title', 'author', 'volumeNumber'],
         ),
       ),
       systemInstruction: Content.system(
-        'You are an expert librarian and bibliophile. Analyze the uploaded picture  '
-        'of a book cover or spine. Extract the book title, author, and volume number if present. '
-        'Return only the requested structured JSON object without formatting or Markdown wrappers.'
+        'You are an expert librarian and bibliophile. Examine the image. First, determine if a book cover or spine is present. '
+        'If no book is visible, set isBook to false and omit other fields. '
+        'If a book is visible, extract the title, author, and volume number with high precision.',
       ),
     );
   }
 
   Future<GeminiBookExtraction> extractBookDetails(Uint8List imageBytes, String mimeType) async {
-    final prompt = TextPart('Extract the book metadata from this image.');
+    final prompt = TextPart('Analyze this picture and extract book metadata.');
     final imagePart = InlineDataPart(mimeType, imageBytes);
 
     final response = await _model.generateContent([
@@ -61,7 +73,7 @@ class GeminiVisionService {
 
     final rawJson = response.text;
     if (rawJson == null || rawJson.isEmpty) {
-      throw Exception('Gemini Vision returned an empty extraction response.');
+      throw Exception('L\'IA n\'a renvoyé aucune réponse.');
     }
 
     final decoded = jsonDecode(rawJson) as Map<String, dynamic>;
