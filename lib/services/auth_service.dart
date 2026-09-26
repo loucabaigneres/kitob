@@ -31,15 +31,7 @@ class AuthService {
       password: password
     );
 
-    try {
-      await user.linkWithCredential(credential);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'credential-already-in-use' || e.code == 'email-already-in-use') {
-        await _auth.signInWithCredential(credential);
-      } else {
-        rethrow;
-      }
-    }
+    await user.linkWithCredential(credential);
     await _auth.currentUser?.reload();
   }
 

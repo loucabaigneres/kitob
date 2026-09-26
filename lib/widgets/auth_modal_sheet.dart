@@ -20,7 +20,7 @@ class _AuthModalSheetState extends ConsumerState<AuthModalSheet> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoginMode = false;
-  String? _errorMessage;
+  String? _localValidationError;
 
   @override
   void dispose() {
@@ -30,36 +30,23 @@ class _AuthModalSheetState extends ConsumerState<AuthModalSheet> {
   }
 
   Future<void> _handleSubmit() async {
-    setState(() => _errorMessage = null);
+    setState(() => _localValidationError = null);
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || !email.contains('@')) {
-      setState(() => _errorMessage = 'Veuillez saisir une adresse email valide.');
+      setState(() => _localValidationError = 'Veuillez saisir une adresse email valide.');
       return;
     }
     if (password.length < 6) {
-      setState(() => _errorMessage = 'Le mot de passe doit comporter au moins 6 caractères.');
+      setState(() => _localValidationError = 'Le mot de passe doit comporter au moins 6 caractères.');
       return;
     }
 
-    try {
-      if (_isLoginMode) {
-        await ref.read(authActionProvider.notifier).signIn(email, password);
-      } else {
-        await ref.read(authActionProvider.notifier).linkAccount(email, password);
-      }
-
-      // If the user is logged in, trigger a sync
-      await ref.read(syncActionProvider.notifier).syncNow();
-
-      if (mounted) context.pop();
-    } on FirebaseAuthException catch (e) {
-      if (mounted) {
-        setState(() => _errorMessage = _mapFirebaseAuthError(e.code));
-      }
-    } catch (e) {
-      if (mounted) setState(() => _errorMessage = e.toString());
+    if (_isLoginMode) {
+      await ref.read(authActionProvider.notifier).signIn(email, password);
+    } else {
+      await ref.read(authActionProvider.notifier).linkAccount(email, password);
     }
   }
 
@@ -75,11 +62,11 @@ class _AuthModalSheetState extends ConsumerState<AuthModalSheet> {
       case 'invalid-email':
         return 'Le format de l\'adresse email est invalide.';
       case 'weak-password':
-        return 'Le mot de passe est trop faible.';
+        return 'Le mot de passe doit comporter au moins 6 caractères.';
       case 'network-request-failed':
         return 'Impossible de contacter les serveurs. Vérifiez votre connexion.';
       case 'too-many-requests':
-        return 'Trop de tentatives infructueuses. Réessayez plus tard.';
+        return 'Trop de tentatives infructueuses. Veuillez réessayer plus tard.';
       default:
         return 'Erreur d\'authentification ($code).';
     }
@@ -88,9 +75,26 @@ class _AuthModalSheetState extends ConsumerState<AuthModalSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final authActionState = ref.watch(authActionProvider);
-    final isBusy = authActionState.isLoading;
+    final authAction = ref.watch(authActionProvider);
+    final isBusy = authAction.isLoading;
     final isAnonymous = widget.currentUser?.isAnonymous ?? true;
+
+    ref.listen<AsyncValue<void>>(authActionProvider, (previous, next) {
+      if (previous?.isLoading == true && next.hasValue && !next.hasError) {
+        ref.read(syncActionProvider.notifier).syncNow();
+        if (context.mounted) context.pop();
+      }
+    });
+
+    String? resolvedError = _localValidationError;
+    if (authAction.hasError) {
+      final err = authAction.error;
+      if (err is FirebaseAuthException) {
+        resolvedError = _mapFirebaseAuthError(err.code);
+      } else {
+        resolvedError = 'Une erreur inattendue est survenue.';
+      }
+    }
 
     return Padding(
       padding: EdgeInsets.only(
@@ -134,10 +138,10 @@ class _AuthModalSheetState extends ConsumerState<AuthModalSheet> {
                 border: OutlineInputBorder(),
               ),
             ),
-            if (_errorMessage != null) ...[
+            if (resolvedError != null) ...[
               const SizedBox(height: 12),
               Text(
-                _errorMessage!,
+                resolvedError,
                 style: const TextStyle(color: AppColors.error, fontSize: 13),
               ),
             ],
@@ -170,9 +174,14 @@ class _AuthModalSheetState extends ConsumerState<AuthModalSheet> {
                   ? null
                   : () async {
                     await ref.read(authActionProvider.notifier).signOut();
-                    if (context.mounted) context.pop();
                   },
-              child: const Text('Se déconnecter'),
+              child: isBusy
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Se déconnecter'),
             ),
           ],
         ],

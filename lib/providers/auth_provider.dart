@@ -22,7 +22,9 @@ class AuthNotifier extends AsyncNotifier<void> {
       final authService = ref.read(authServiceProvider);
       await authService.linkAccountWithEmail(email, password);
     });
-    if (ref.mounted) state = result;
+    if (ref.mounted) {
+      state = result;
+    }
   }
 
   Future<void> signIn(String email, String password) async {
@@ -31,7 +33,9 @@ class AuthNotifier extends AsyncNotifier<void> {
       final authService = ref.read(authServiceProvider);
       await authService.signInWithEmail(email, password);
     });
-    if (ref.mounted) state = result;
+    if (ref.mounted) {
+      state = result;
+    }
   }
 
   Future<void> signOut() async {
@@ -39,11 +43,12 @@ class AuthNotifier extends AsyncNotifier<void> {
     final result = await AsyncValue.guard(() async {
       final authService = ref.read(authServiceProvider);
       final repository = ref.read(bookRepositoryProvider);
-
       await authService.signOut();
       await repository.clearLocalDatabase();
     });
-    if (ref.mounted) state = result;
+    if (ref.mounted) {
+      state = result;
+    }
   }
 }
 
