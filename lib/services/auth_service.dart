@@ -5,7 +5,7 @@ class AuthService {
 
   AuthService([FirebaseAuth? auth]) : _auth = auth ?? FirebaseAuth.instance;
 
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<User?> get authStateChanges => _auth.userChanges();
   User? get currentUser => _auth.currentUser;
 
   // Ensures an anonymous user session exists at startup.
@@ -40,6 +40,7 @@ class AuthService {
         rethrow;
       }
     }
+    await _auth.currentUser?.reload();
   }
 
   // Sign in with an existing email and password
@@ -48,6 +49,7 @@ class AuthService {
       email: email.trim(),
       password: password,
     );
+    await _auth.currentUser?.reload();
   }
   Future<void> signOut() async {
     await _auth.signOut();

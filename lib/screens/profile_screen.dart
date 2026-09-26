@@ -13,7 +13,8 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final user = ref.watch(authStateProvider).value;
+    final user = ref.watch(authStateProvider).value ??
+                ref.read(authServiceProvider).currentUser;
     final stats = ref.watch(libraryStatsProvider);
     final pendingCount = ref.watch(pendingSyncCountProvider).value ?? 0;
     final syncState = ref.watch(syncActionProvider);

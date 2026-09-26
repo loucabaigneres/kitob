@@ -4,7 +4,7 @@
 
 ## Fonctionnalités clés
 
-- **Numérisation multimodale par IA :** flux caméra direct analysant instantanément la couverture ou la tranche d'un livre via **Gemini 3.5 Flash** (`firebase_ai`) avec extraction typée et détection des faux positifs (vérification de présence effective d'un livre).
+- **Numérisation multimodale par IA :** flux caméra direct analysant instantanément la couverture ou la tranche d'un livre via **Gemini 3.5 Flash-Lite** (`firebase_ai`) avec extraction typée et détection des faux positifs (vérification de présence effective d'un livre).
 
 - **Enrichissement automatique des métadonnées :** récupération transparente des informations bibliographiques via l'API **Google Books** (couverture haute résolution, résumé officiel, pagination, éditeur, ISBN).
 
@@ -39,7 +39,7 @@ L'interface de Kitob s'éloigne des codes applicatifs utilitaires classiques pou
 | **Navigation**                | GoRouter 18.x               | Routage déclaratif et sous-routes paramétrées (`/book/:id`)                                       |
 | **Persistance locale**        | Isar Community Edition      | Moteur NoSQL local ultra-rapide et streams d'écoute réactifs                                      |
 | **Réseau**                    | Dio 5.x                     | Client HTTP typé avec timeouts et injection de clé d'API                                          |
-| **Intelligence artificielle**  | Firebase AI Logic           | Inférence multimodale sur Gemini 3.5 Flash avec formats de sortie stricts ( _Structured Outputs_) |
+| **Intelligence artificielle**  | Firebase AI Logic           | Inférence multimodale sur Gemini 3.5 Flash-Lite avec formats de sortie stricts ( _Structured Outputs_) |
 | **Backend & Auth**            | Firebase (Auth & Firestore) | Gestion d'identité (invité -> email) et synchronisation distante NoSQL                            |
 | **Sécurité**                  | Firebase App Check          | Protection de l'API IA contre les abus via tokens de débogage et attestations d'intégrité         |
 | **Matériel & Médias**         | Camera & Image Picker       | Contrôle du flux vidéo du capteur physique et sélecteur de fichiers de galerie                      |

@@ -1,4 +1,5 @@
 import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,15 @@ Future<void> main() async {
         ? AppleDebugProvider(debugToken: debugToken)
         : AppleAppAttestProvider(),
   );
+
+  try {
+    final auth = FirebaseAuth.instance;
+    if (auth.currentUser == null) {
+      await auth.signInAnonymously();
+    }
+  } catch (e) {
+    debugPrint('Erreur lors de l\'initialisation de la session anonyme : $e');
+  }
 
   runApp(
     const ProviderScope(

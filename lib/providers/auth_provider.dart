@@ -14,26 +14,25 @@ final authStateProvider = StreamProvider<User?>((ref) {
 class AuthNotifier extends AsyncNotifier<void> {
   @override
   Future<void> build() async {
-    final authService = ref.read(authServiceProvider);
-    await authService.ensureAnonymousUser();
   }
 
-  Future<void> _executeAuth(Future<void> Function(AuthService service) action) async {
+  Future<void> linkAccount(String email, String password) async {
     state = const AsyncLoading();
     final result = await AsyncValue.guard(() async {
       final authService = ref.read(authServiceProvider);
-      await action(authService);
+      await authService.linkAccountWithEmail(email, password);
     });
-    if (ref.mounted) {
-      state = result;
-    }
+    if (ref.mounted) state = result;
   }
 
-  Future<void> linkAccount(String email, String password) =>
-      _executeAuth((s) => s.linkAccountWithEmail(email, password));
-  
-  Future<void> signIn(String email, String password) =>
-      _executeAuth((s) => s.signInWithEmail(email, password));
+  Future<void> signIn(String email, String password) async {
+    state = const AsyncLoading();
+    final result = await AsyncValue.guard(() async {
+      final authService = ref.read(authServiceProvider);
+      await authService.signInWithEmail(email, password);
+    });
+    if (ref.mounted) state = result;
+  }
 
   Future<void> signOut() async {
     state = const AsyncLoading();
