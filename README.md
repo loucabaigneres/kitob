@@ -46,7 +46,7 @@ L'interface de Kitob s'éloigne des codes applicatifs utilitaires classiques pou
 | **Persistance locale**        | Isar Community Edition      | Moteur NoSQL local ultra-rapide et streams d'écoute réactifs                                      |
 | **Réseau**                    | Dio 5.x                     | Client HTTP typé avec timeouts et injection de clé d'API                                          |
 | **Intelligence artificielle**  | Firebase AI Logic           | Inférence multimodale sur Gemini 3.5 Flash-Lite avec formats de sortie stricts ( _Structured Outputs_) |
-| **Backend & Auth**            | Firebase (Auth & Firestore) | Gestion d'identité (invité -> email) et synchronisation distante NoSQL                            |
+| **Backend & Auth**            | Firebase (Auth & Firestore) | Gestion d'identité (invité $\rightarrow$ email) et synchronisation distante NoSQL                            |
 | **Sécurité**                  | Firebase App Check          | Protection de l'API IA contre les abus via tokens de débogage et attestations d'intégrité         |
 | **Matériel & Médias**         | Camera & Image Picker       | Contrôle du flux vidéo du capteur physique et sélecteur de fichiers de galerie                      |
 

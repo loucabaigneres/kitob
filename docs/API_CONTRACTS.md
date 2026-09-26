@@ -125,7 +125,7 @@ L'application filtre la réponse brute pour hydrater le DTO interne `GoogleBookM
 
 > **Traitement appliqué par Kitob :**
 > - _L'ISBN-13 est extrait prioritairement par rapport à l'ISBN-10._
-> - _L'URL du thumbnail est systématiquement migrée en protocole sécurisé (`http://` -> `https://`)._
+> - _L'URL du thumbnail est systématiquement migrée en protocole sécurisé (`http://` $\rightarrow$ `https://`)._
 
 ## 3. Schéma de données Cloud Firestore
 

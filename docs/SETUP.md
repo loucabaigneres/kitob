@@ -1,6 +1,10 @@
 # Guide d'installation et de configuration (Kitob)
 
-Ce document décrit pas à pas la procédure pour configurer, compiler et exécuter l'application **Kitob** sur émulateur ou terminal physique (Android / iOS).
+Ce document décrit la procédure pour installer, configurer et lancer **Kitob**.
+
+Deux méthodes sont possibles :
+1. **Configuration rapide (recommandée pour l'évaluation) :** utilisation des clés et fichiers d'accès Firebase déjà configurés (transmis via la plateforme de rendu).
+2. **Configuration manuelle (alternative) :** liaison avec votre propre projet Firebase depuis zéro.
 
 ---
 
@@ -8,22 +12,17 @@ Ce document décrit pas à pas la procédure pour configurer, compiler et exécu
 
 Assurez-vous de disposer des outils suivants sur votre poste de développement :
 
-* **Flutter SDK :** version `3.19.0` ou supérieure (canal stable, compatible Dart 3.3+).
-* **Git :** pour le clonage et la gestion de version.
+* **Flutter SDK :** version `3.19.0` ou supérieure (canal stable, Dart 3.3+).
 * **Environnement Android :** Android Studio avec Android SDK Platform-Tools et un émulateur ou terminal physique sous **Android 5.0 (API 21)** au minimum.
-* **Environnement iOS (macOS uniquement) :** Xcode 15+ avec CocoaPods installé (`sudo gem install cocoapods`).
-* **Firebase CLI & FlutterFire :**
-  ```bash
-  npm install -g firebase-tools
-  dart pub global activate flutterfire_cli
-  ```
+* **Environnement iOS (optionnel) :** Xcode 15+ et CocoaPods (`sudo gem install cocoapods`).
+* **Git :** pour le clonage et la gestion de version.
 
-Vérifiez l'état de votre chaîne d'outils avant de poursuivre :
+Vérifiez votre environnement
 ```bash
 flutter doctor
 ```
 
-## 2. Récupération du projet et dépendances
+## 2. Récupération du dépôt & dépendances
 
 1. Clonez le dépôt et placez-vous à la racine :
 ```bash
@@ -36,52 +35,84 @@ cd kitob
 flutter pub get
 ```
 
-## 3. Configuration des variables d'environnement (`.env`)
+## 3. Méthode 1 : Démarrage rapide (Identifiants fournis pour la notation)
 
-L'application utilise `flutter_dotenv` pour isoler les clés d'API et les jetons de sécurité.
+Pour tester directement l'application sur le backend du projet sans paramétrer de compte cloud, déposez les fichiers transmis sur la plateforme de rendu aux emplacements suivants :
 
-1. Dupliquez le fichier d'exemple à la racine du projet :
+### B. Emplacement des fichiers de configuration native
 
+| **Fichier transmis**         | **Emplacement cible dans le projet**          | **Rôle**                                             |
+|--------------------------|-------------------------------------------|--------------------------------------------------|
+| `.env`                     | `kitob/.env` (racine du projet)             | Clé Google Books et debug token App Check        |
+| `google-services.json`     | `kitob/android/app/google-services.json`    | Configuration Firebase Android (_cible de test_)   |
+| `firebase_options.dart`    | `kitob/lib/firebase_options.dart`           | Initialisation FlutterFire dans le code          |
+| `GoogleService-Info.plist` | `kitob/ios/Runner/GoogleService-Info.plist` | Configuration Firebase iOS (_fourni pour archive_) |
+
+### Contenu du fichier `.env` à placer à la racine :
+
+```bash
+GOOGLE_BOOKS_API_KEY=<CLE_COMMUNIQUEE>
+FIREBASE_APP_CHECK_DEBUG_TOKEN=<TOKEN_COMMUNIQUE>
+```
+
+## 4. Génération du schéma local (Isar Database)
+
+Générez le code du schéma local avant de lancer la compilation :
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+> _Note : Cette commande doit être relancée si vous modifiez la structure de la class_ `@collection Book`.
+
+## 5. Lancement de l'application
+
+Lancez l'application en mode débogage (nécessaire pour la validation App Check par jeton) :
+
+### Sur Android (cible principale d'évaluation) :
+
+```bash
+flutter run -d android
+```
+
+### Sur iOS (si applicable) :
+
+```bash
+# Installation préalable des pods iOS
+cd ios && pod install && cd ..
+
+# Lancement
+flutter run -d ios
+```
+
+> **Conseil pour le test du scanner :**
+> **Sur terminal physique :** _visez directement la couverture ou la tranche d'un livre via le flux caméra_.
+> **Sur émulateur :** _utilisez le bouton **Galerie** (à gauche du déclencheur) pour importer une image de couverture téléchargée sur l'appareil simulé_.
+
+## 6. Méthode 2 : Configuration manuelle d'un nouveau projet
+
+Si vous souhaitez brancher Kitob sur votre propre infrastructure cloud depuis zéro :
+
+### A. Fichier d'environnement
+Dupliquez le fichier d'exemple :
 ```bash
 cp .env.example .env
 ```
 
-2. Renseignez les variables requises dans le fichier `.env` :
+### B. Clé API Google Books
 
-```bash
-GOOGLE_BOOKS_API_KEY=AIzaSy...votre_cle_api_google_books
-FIREBASE_APP_CHECK_DEBUG_TOKEN=votre-uuid-debug-token-app-check
-```
+1. Rendez-vous sur la [Console Google Cloud](https://console.cloud.google.com/).
+2. Créez un projet ou sélectionnez un projet existant.
+3. Dans la bibliothèque d'APIs, recherchez et activez **Books API** (Google Books API).
+4. Accédez à la section **Identifiants** $\rightarrow$ **Créer des identifiants** $\rightarrow$ **Clé API**.
+5. _(Recommandé)_ Restreignez la clé uniquement à l'API Books (sans restriction d'empreinte logicielle pour autoriser les tests en local).
+6. Copiez cette clé dans votre fichier `.env` (`GOOGLE_BOOKS_API_KEY`).
 
-### Obtention des clés :
-- **Clé Google Books API** :
-  1. Rendez-vous sur la [Console Google Cloud](https://console.cloud.google.com/).
-  2. Activez l'API **Books API**.
-  3. Créez un identifiant de type **Clé API** dans l'onglet Identifiants.
-- **Jeton de débogage Firebase App Check** :
-  1. Définissez un UUID arbitraire (ex. : généré via `uuidgen` sur votre machine).
-  2. Rendez-vous sur la [Console Firebase](https://console.firebase.google.com/) -> **App Check** -> onglet **Applications**.
-  3. Cliquez sur le menu contextuel (trois points) de votre application Android/iOS -> **Gérer les jetons de débogage**.
-  4. Ajoutez le même UUID dans la liste des jetons autorisés.
+### C. Configuration Firebase
 
-## 4. Configuration Firebase
-
-1. Authentifiez-vous sur le CLI Firebase :
-```bash
-firebase login
-```
-
-2. Générez la configuration native multiplateforme :
-```bash
-flutterfire configure
-```
-  - Sélectionnez votre projet Firebase.
-  - Cochez **Android** et **iOS**.
-  - Cette commande génère `lib/firebase_options.dart`, ainsi que `android/app/google-services.json` et `ios/Runner/GoogleService-Info.plist`.
-
-3. **Activer les services dans la console Firebase :**
-  - **Authentication :** activez le fournisseur **Anonyme** et le fournisseur **Adresse e-mail/Mot de passe**.
-  - **Cloud Firestore :** créez la base de données et appliquez les règles d'isolation utilisateur :
+1. Créez un projet sur la [Console Firebase](https://console.firebase.google.com/).
+2. **Activation des services :**
+  - **Authentication :** activez les fournisseurs **Anonyme** et **Adresse e-mail/Mot de passe**.
+  - **Cloud Firestore :** créez la base et appliquez les règles d'accès suivantes :
   ```plaintext
   rules_version = '2';
   service cloud.firestore {
@@ -92,44 +123,26 @@ flutterfire configure
     }
   }
   ```
-  - **AI Logic :** dans la section **Build** -> **AI Logic**, activez l'accès à l'API Gemini.
-
-## 5. Génération du code local (Isar Database)
-
-Le schéma de la base de données locale repose sur la génération de code via `build_runner`. Exécutez la commande suivante pour compiler `lib/models/book.g.dart` :
+  - **Firebase AI Logic :** activez Gemini via la rubrique _Build_ $\rightarrow$ _AI Logic_.
+3. **Liaison CLI :**
 ```bash
-dart run build_runner build --delete-conflicting-outputs
+npm install -g firebase-tools
+dart pub global activate flutterfire_cli
+firebase login
+flutterfire configure
 ```
-  Note : _Cette commande doit être relancée si vous modifiez la structure de la classe_ `@collection Book`.
+4. **App Check :**
+  - Générez un UUID (par exemple via la commande `uuidgen`).
+  - Renseignez cet UUID dans votre fichier `.env` (`FIREBASE_APP_CHECK_DEBUG_TOKEN`).
+  - Dans la console Firebase $\rightarrow$ **App Check** $\rightarrow$ **Applications**, cliquez sur le menu de votre application Android/iOS $\rightarrow$ **Gérer les jetons de débogage**, et collez-y ce même UUID.
 
-## 6. Lancement de l'application
+## 7. Résolution des incidents (Troubleshooting)
 
-### Sur Android (Émulateur ou appareil physique) :
+- **Erreur `Missing or insufficient permissions` (Firestore) :**
+  - Vérifiez que les règles de sécurité Firestore autorisent bien l'UID de l'utilisateur connecté sur son propre sous-dossier `users/{userId}/books/{bookId}`.
 
-```bash
-flutter run -d android
-```
+**Erreur `403 Forbidden` lors de l'appel Gemini :**
+  - Assurez-vous d'avoir exécuté l'application en mode debug (`flutter run`) afin que le jeton App Check présent dans le `.env` soit transmis aux serveurs Google.
 
-### Sur iOS (Simulateur ou iPhone) :
-```bash
-# Installation préalable des pods iOS
-cd ios && pod install && cd ..
-
-# Lancement
-flutter run -d ios
-```
-
-> Rappel sur le scanner caméra :
-> - _Sur simulateur (où le capteur optique n'est pas accessible), utilisez le bouton Galerie (icône photo) dans l'écran de scan pour charger une image de couverture de test._
-> - _Sur terminal physique, l'autorisation d'accès à la caméra vous sera demandée dès la première ouverture de l'écran de scan._
-
-## 7. Résolution des problèmes courants (_Troubleshooting_)
-
-- **Erreur d'asset `.env` manquant :**
-Si Flutter lève une exception indiquant que `.env` est introuvable, arrêtez complètement le processus de compilation et relancez `flutter run`. L'ajout d'un asset dans `pubspec.yaml` nécessite une compilation complète du bundle.
-
-- **Erreur d'App Check (403 Forbidden sur l'IA) :**
-Vérifiez que le jeton défini dans `.env` correspond exactement à celui enregistré dans l'onglet App Check de la console Firebase.
-
-- **Erreur de build Isar sur iOS :**
-Exécutez `cd ios && pod repo update && pod install && cd ..`, puis nettoyez le cache avec `flutter clean && flutter pub get`.
+**Fichier `.env` non détecté :**
+  - Après l'ajout du fichier `.env`, redémarrez entièrement le processus de compilation (`flutter run`) pour que l'asset soit réintégré dans le bundle applicatif.

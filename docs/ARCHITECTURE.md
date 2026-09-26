@@ -62,7 +62,7 @@ flowchart LR
 - `booksStreamProvider` (`StreamProvider.autoDispose`) : écoute en continu les mutations de la table locale Isar et réémet la liste des livres filtrée dès qu'un critère (statut ou texte recherché) évolue.
 - `bookFilterProvider` (`Notifier<BookFilterState>`) : stocke les filtres d'affichage actifs (statut sélectionné et chaîne de recherche).
 - `bookStreamProvider(id)` (`StreamProvider.autoDispose.family`) : instancie un flux réactif ciblé sur un seul identifiant d'ouvrage pour alimenter la fiche détail.
-- `scanProvider` (`NotifierProvider.autoDispose<ScanNotifier, ScanState>`) : gère la machine à états finis du tunnel de capture (`capturing` -> `analyzingImage` -> `enrichingMetadata` -> `checkingDuplicates` -> `completed`).
+- `scanProvider` (`NotifierProvider.autoDispose<ScanNotifier, ScanState>`) : gère la machine à états finis du tunnel de capture (`capturing` $\rightarrow$ `analyzingImage` $\rightarrow$ `enrichingMetadata` $\rightarrow$ `checkingDuplicates` $\rightarrow$ `completed`).
 -`authActionProvider` / `syncActionProvider` (`AsyncNotifierProvider`) : coordonnent les mutations asynchrones du compte utilisateur et la synchronisation avec verrouillage d'interface (`AsyncLoading`).
 
 ## 4. Stratégie Offline-First & Synchronisation Cloud
