@@ -6,7 +6,7 @@
 
 Une vidéo de présentation de 3 minutes illustre le fonctionnement complet de l'application en conditions réelles sur terminal physique (numérisation par IA, gestion des doublons, résilience hors-ligne et synchronisation Cloud) :
 
-👉 **[Regarder la vidéo de démonstration sur YouTube](https://youtu.be/bhz6TVSPLbo)**
+👉 **[Regarder la vidéo de démonstration sur YouTube](https://youtu.be/Uga6gb4BpwI)**
 
 ## Fonctionnalités clés
 

@@ -43,7 +43,7 @@ Pour tester directement l'application sur le backend du projet sans paramétrer 
 
 | **Fichier transmis**         | **Emplacement cible dans le projet**          | **Rôle**                                             |
 |--------------------------|-------------------------------------------|--------------------------------------------------|
-| `.env`                     | `kitob/.env` (racine du projet)             | Clé Google Books et debug token App Check        |
+| `env.txt`                     | `kitob/.env` (racine du projet)             | Clé Google Books et debug token App Check        |
 | `google-services.json`     | `kitob/android/app/google-services.json`    | Configuration Firebase Android (_cible de test_)   |
 | `firebase_options.dart`    | `kitob/lib/firebase_options.dart`           | Initialisation FlutterFire dans le code          |
 | `GoogleService-Info.plist` | `kitob/ios/Runner/GoogleService-Info.plist` | Configuration Firebase iOS (_fourni pour archive_) |
