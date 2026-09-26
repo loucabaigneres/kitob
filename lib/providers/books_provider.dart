@@ -2,13 +2,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/book.dart';
 import '../repositories/book_repository.dart';
+import '../services/firestore_sync_service.dart';
 import '../services/isar_service.dart';
 
 final isarServiceProvider = Provider<IsarService>((ref) => IsarService());
+final firestoreSyncServiceProvider = Provider<FirestoreSyncService>((ref) {
+  final isarService = ref.watch(isarServiceProvider);
+  return FirestoreSyncService(isarService);
+});
 
 final bookRepositoryProvider = Provider<BookRepository>((ref) {
   final isarService = ref.watch(isarServiceProvider);
-  return BookRepository(isarService);
+  final syncService = ref.watch(firestoreSyncServiceProvider);
+  return BookRepository(isarService, syncService);
 });
 
 class BookFilterState {

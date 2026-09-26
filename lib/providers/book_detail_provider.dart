@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar_community/isar.dart';
 
 import '../models/book.dart';
+import 'auth_provider.dart';
 import 'books_provider.dart';
 
 final bookStreamProvider = StreamProvider.autoDispose.family<Book?, Id>((ref, id) {
@@ -29,7 +30,8 @@ class BookDetailNotifier extends AsyncNotifier<void> {
     state = const AsyncLoading();
     final result = await AsyncValue.guard(() async {
       final repository = ref.read(bookRepositoryProvider);
-      await repository.deleteBook(id);
+      final user = ref.read(authServiceProvider).currentUser;
+      await repository.deleteBook(id, userId: user?.uid);
     });
 
     if (ref.mounted) {

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kitob/providers/auth_provider.dart';
 
 import 'constants/api_constants.dart';
 import 'constants/app_theme.dart';
@@ -36,11 +37,13 @@ Future<void> main() async {
   );
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(authActionProvider);
+
     return MaterialApp.router(
       title: 'Kitob',
       debugShowCheckedModeBanner: false,

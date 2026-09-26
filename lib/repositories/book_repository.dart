@@ -1,12 +1,14 @@
 import 'package:isar_community/isar.dart';
 
 import '../models/book.dart';
+import '../services/firestore_sync_service.dart';
 import '../services/isar_service.dart';
 
 class BookRepository {
   final IsarService _isarService;
+  final FirestoreSyncService _syncService;
 
-  BookRepository(this._isarService);
+  BookRepository(this._isarService, this._syncService);
 
   Stream<List<Book>> watchBooks({ReadingStatus? status, String query = ''}) async* {
     final isar = await _isarService.db;
@@ -46,16 +48,27 @@ class BookRepository {
 
   Future<void> saveBook(Book book) async {
     final isar = await _isarService.db;
+    book.isSynced = false;
+    book.updatedAt = DateTime.now();
     await isar.writeTxn(() async {
       await isar.books.put(book);
     });
   }
 
-  Future<void> deleteBook(Id id) async {
+  Future<void> deleteBook(Id id, {String? userId}) async {
     final isar = await _isarService.db;
-    await isar.writeTxn(() async {
-      await isar.books.delete(id);
-    });
+    final book = await isar.books.get(id);
+
+    if (book != null) {
+      final remoteId = book.remoteId;
+      await isar.writeTxn(() async {
+        await isar.books.delete(id);
+      });
+
+      if (userId != null && remoteId != null) {
+        await _syncService.deleteRemoteBook(userId, remoteId);
+      }
+    }
   }
 
   Future<void> updateBookStatus(Id id, ReadingStatus status) async {
@@ -90,5 +103,17 @@ class BookRepository {
         .and()
         .authorEqualTo(author, caseSensitive: false)
         .findFirst();
+  }
+
+  Stream<int> watchPendingSyncCount() async* {
+    final isar = await _isarService.db;
+    yield await isar.books.filter().isSyncedEqualTo(false).count();
+    await for (final _ in isar.books.watchLazy()) {
+      yield await isar.books.filter().isSyncedEqualTo(false).count();
+    }
+  }
+
+  Future<void> triggerSync(String userId) async {
+    await _syncService.synchronize(userId);
   }
 }
