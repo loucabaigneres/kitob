@@ -99,7 +99,7 @@ Le traitement d'une image suit une chaîne d'enrichissement séquentielle optimi
 
 ```mermaid
 flowchart TD
-    Capture["Prise de vue / Sélection Galerie"] --> AI["Extraction IA Gemini 1.5 Flash<br/><i>(firebase_ai)</i>"]
+    Capture["Prise de vue / Sélection Galerie"] --> AI["Extraction IA Gemini 1.5 Flash-Lite<br/><i>(firebase_ai)</i>"]
     
     AI --> CheckBook{"Livre détecté ?<br/><code>isBook == true</code>"}
     

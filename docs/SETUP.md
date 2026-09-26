@@ -119,9 +119,9 @@ cd ios && pod install && cd ..
 flutter run -d ios
 ```
 
-Rappel sur le scanner caméra :
-- _Sur simulateur (où le capteur optique n'est pas accessible), utilisez le bouton Galerie (icône photo) dans l'écran de scan pour charger une image de couverture de test._
-- _Sur terminal physique, l'autorisation d'accès à la caméra vous sera demandée dès la première ouverture de l'écran de scan._
+> Rappel sur le scanner caméra :
+> - _Sur simulateur (où le capteur optique n'est pas accessible), utilisez le bouton Galerie (icône photo) dans l'écran de scan pour charger une image de couverture de test._
+> - _Sur terminal physique, l'autorisation d'accès à la caméra vous sera demandée dès la première ouverture de l'écran de scan._
 
 ## 7. Résolution des problèmes courants (_Troubleshooting_)
 
