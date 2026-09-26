@@ -2,6 +2,12 @@
 
 **Kitob** est une application mobile de gestion de bibliothèque personnelle conçue avec une approche **offline-first**. Elle permet de numériser et de cataloguer une collection physique en quelques secondes grâce à la vision par ordinateur et à l'intelligence artificielle générative, tout en garantissant un fonctionnement intégral sans connexion internet.
 
+## Démonstration vidéo
+
+Une vidéo de présentation de 3 minutes illustre le fonctionnement complet de l'application en conditions réelles sur terminal physique (numérisation par IA, gestion des doublons, résilience hors-ligne et synchronisation Cloud) :
+
+👉 **[Regarder la vidéo de démonstration sur YouTube](https://youtu.be/bhz6TVSPLbo)**
+
 ## Fonctionnalités clés
 
 - **Numérisation multimodale par IA :** flux caméra direct analysant instantanément la couverture ou la tranche d'un livre via **Gemini 3.5 Flash-Lite** (`firebase_ai`) avec extraction typée et détection des faux positifs (vérification de présence effective d'un livre).
