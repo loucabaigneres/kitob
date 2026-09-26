@@ -48,3 +48,8 @@ app.*.map.json
 .widget_preview/
 
 .env
+
+# Firebase related
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
