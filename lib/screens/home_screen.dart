@@ -3,9 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../constants/app_colors.dart';
-import '../providers/auth_provider.dart';
 import '../providers/books_provider.dart';
-import '../widgets/auth_modal_sheet.dart';
 import '../widgets/book_card.dart';
 import '../widgets/filter_bar.dart';
 import '../widgets/sync_indicator_badge.dart';
@@ -25,19 +23,8 @@ class HomeScreen extends ConsumerWidget {
           const SyncIndicatorBadge(),
           IconButton(
             icon: const Icon(Icons.account_circle_outlined),
-            tooltip: 'Compte & Sauvegarde',
-            onPressed: () {
-              final currentUser = ref.read(authServiceProvider).currentUser;
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: AppColors.surface,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                ),
-                builder: (_) => AuthModalSheet(currentUser: currentUser),
-              );
-            },
+            tooltip: 'Profil & Statistiques',
+            onPressed: () => context.push('/profile'),
           ),
           const SizedBox(width: 8),
         ],

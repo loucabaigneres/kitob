@@ -116,4 +116,11 @@ class BookRepository {
   Future<void> triggerSync(String userId) async {
     await _syncService.synchronize(userId);
   }
+
+  Future<void> clearLocalDatabase() async {
+    final isar = await _isarService.db;
+    await isar.writeTxn(() async {
+      await isar.books.clear();
+    });
+  }
 }

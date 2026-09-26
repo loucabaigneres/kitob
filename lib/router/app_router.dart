@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../screens/book_detail_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/profile_screen.dart';
 import '../screens/scan_screen.dart';
 
 final appRouter = GoRouter(
@@ -14,7 +15,7 @@ final appRouter = GoRouter(
       builder: (context, state) => const HomeScreen(),
       routes: [
         GoRoute(
-          path: '/book/:id',
+          path: 'book/:id',
           name: 'book-detail',
           builder: (context, state) {
             final idString = state.pathParameters['id'] ?? '';
@@ -33,6 +34,11 @@ final appRouter = GoRouter(
       path: '/scan',
       name: 'scan',
       builder: (context, state) => const ScanScreen(),
+    ),
+    GoRoute(
+      path: '/profile',
+      name: 'profile',
+      builder: (context, state) => const ProfileScreen(),
     ),
   ],
 );

@@ -49,8 +49,8 @@ class AuthService {
       password: password,
     );
   }
-
-  Future<void> signOut() async {
+  Future<void> signOut({required Future<void> Function() onBeforeSignOut}) async {
+    await onBeforeSignOut();
     await _auth.signOut();
     // Ensure that the user is signed in anonymously after signing out
     await _auth.signInAnonymously();
